@@ -35,14 +35,32 @@ func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/auth", GetToken).Methods("POST")
 	router.HandleFunc("/register", RegisterUser).Methods("POST")
-	//router.HandleFunc("/auto",GetAuto).Methods("GET")
+	router.Handle("/auto/{mark}", jwtMiddleware.Handler(http.HandlerFunc(GetAuto))).Methods("GET")
 	router.Handle("/auto/{mark}", jwtMiddleware.Handler(http.HandlerFunc(AddAuto))).Methods("POST")
-	//router.HandleFunc("/auto",PutAuto).Methods("PUT")
-	//router.HandleFunc("/auto",DelAuto).Methods("DELETE")
+	router.Handle("/auto/{mark}", jwtMiddleware.Handler(http.HandlerFunc(PutAuto))).Methods("PUT")
+	router.Handle("/auto/{mark}", jwtMiddleware.Handler(http.HandlerFunc(DelAuto))).Methods("DELETE")
 	router.Handle("/stock", jwtMiddleware.Handler(http.HandlerFunc(GetAll))).Methods("GET")
 	fmt.Println("server initialized")
 	log.Fatal(http.ListenAndServe(":8090", router))
 }
+
+func DelAuto(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	mark := mux.Vars(r)["mark"]
+	var newCar Car
+	json.Unmarshal(reqBody, &newCar)
+
+	if _, ok := CarsArr[mark]; ok {
+		delete(CarsArr, mark)
+		fmt.Println("Auto added")
+		w.WriteHeader(http.StatusAccepted)
+		fmt.Fprintf(w, "{\"Message\" : \"Auto deleted\"}")
+	} else {
+		fmt.Fprintf(w, "{\"Error\" : \"Auto with that mark not found\"}")
+		w.WriteHeader(http.StatusNotFound)
+	}
+}
+
 func AddAuto(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	mark := mux.Vars(r)["mark"]
@@ -59,6 +77,42 @@ func AddAuto(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "{\"Message\" : \"Auto created\"}")
 	}
 
+}
+func PutAuto(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	mark := mux.Vars(r)["mark"]
+	var newCar Car
+	json.Unmarshal(reqBody, &newCar)
+
+	if _, ok := CarsArr[mark]; ok {
+		CarsArr[mark] = newCar
+		fmt.Println("Auto added")
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprintf(w, "{\"Message\" : \"Auto updated\"}")
+	} else {
+		fmt.Fprintf(w, "{\"Error\" : \"Auto with that mark not found\"}")
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+}
+func GetAuto(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	mark := mux.Vars(r)["mark"]
+	var newCar Car
+	json.Unmarshal(reqBody, &newCar)
+
+	if _, ok := CarsArr[mark]; ok {
+		resp, err := json.Marshal(CarsArr[mark])
+		if err != nil {
+			log.Fatal(err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(resp)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "{\"Error\" : \"Auto with that mark not found\"}")
+	}
 }
 func GetAll(w http.ResponseWriter, r *http.Request) {
 	if len(CarsArr) > 0 {
