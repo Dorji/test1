@@ -6,11 +6,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
+
 	//"time"
-	//jwtmiddleware "github.com/auth0/go-jwt-middleware"
+	jwtmiddleware "github.com/auth0/go-jwt-middleware"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
-	//"github.com/dgrijalva/jwt-go"
-	//_ "github.com/lib/pq"
+	_ "github.com/lib/pq"
 )
 
 var mySigningKey = []byte("supersecret")
@@ -20,10 +22,10 @@ type User struct {
 	password string
 }
 type Car struct {
-	max_speed int
-	distance  int
-	handler   string
-	stock     string
+	Max_speed string `json:"max_speed"`
+	Distance  string `json:"distance"`
+	Handler   string `json:"handler"`
+	Stock     string `json:"stock"`
 }
 
 var UsersArr = make(map[string]User)
@@ -31,20 +33,46 @@ var CarsArr = make(map[string]Car)
 
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
-	//router.HandleFunc("/auth",GetToken).Methods("POST")
+	router.HandleFunc("/auth", GetToken).Methods("POST")
 	router.HandleFunc("/register", RegisterUser).Methods("POST")
 	//router.HandleFunc("/auto",GetAuto).Methods("GET")
-	//router.HandleFunc("/auto",AddAuto).Methods("POST")
+	router.Handle("/auto/{mark}", jwtMiddleware.Handler(http.HandlerFunc(AddAuto))).Methods("POST")
 	//router.HandleFunc("/auto",PutAuto).Methods("PUT")
 	//router.HandleFunc("/auto",DelAuto).Methods("DELETE")
-	router.HandleFunc("/stock", GetAll).Methods("GET")
+	router.Handle("/stock", jwtMiddleware.Handler(http.HandlerFunc(GetAll))).Methods("GET")
 	fmt.Println("server initialized")
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	log.Fatal(http.ListenAndServe(":8090", router))
+}
+func AddAuto(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	mark := mux.Vars(r)["mark"]
+	var newCar Car
+	json.Unmarshal(reqBody, &newCar)
+
+	if _, ok := CarsArr[mark]; ok {
+		fmt.Fprintf(w, "{\"Error\" : \"Auto with that mark exists\"}")
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		CarsArr[mark] = newCar
+		fmt.Println("Auto added")
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprintf(w, "{\"Message\" : \"Auto created\"}")
+	}
+
 }
 func GetAll(w http.ResponseWriter, r *http.Request) {
-
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "{\"Message\" : \"User created. Try to auth\"}")
+	if len(CarsArr) > 0 {
+		resp, err := json.Marshal(CarsArr)
+		if err != nil {
+			log.Fatal(err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(resp)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "{\"Error\" : \"No one autos found in DataBase\"}")
+	}
 }
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
@@ -54,47 +82,46 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("try add user")
 
 	if _, ok := UsersArr[newUser.username]; ok {
-		fmt.Fprintf(w, "{\"Error\" : \"Auto with that mark exists\"}")
+		fmt.Fprintf(w, "{\"Error\" : \"User with that name exists\"}")
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		UsersArr[newUser.username] = newUser
-		fmt.Println("user added")
+		fmt.Println("User added")
 		w.WriteHeader(http.StatusCreated)
 		fmt.Fprintf(w, "{\"Message\" : \"User created. Try to auth\"}")
 	}
 
 }
 
-//var jwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
-//	ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-//		return mySigningKey, nil
-//	},
-//	SigningMethod: jwt.SigningMethodHS256,
-//})
-//
-//func GetToken(w http.ResponseWriter, r *http.Request){
-//
-//	reqBody, _ := ioutil.ReadAll(r.Body)
-//	var currUser User
-//	json.Unmarshal(reqBody, &currUser)
-//
-//	if currUser.password==UsersArr[currUser.username].username {
-//
-//
-//	token := jwt.New(jwt.SigningMethodHS256)
-//
-//	// Устанавливаем набор параметров для токена
-//	claims := make(jwt.MapClaims)
-//	claims["admin"] = true
-//	claims["name"] = "specialist"
-//	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
-//	token.Claims = claims
-//
-//	// Подписываем токен нашим секретным ключем
-//	tokenString, _ := token.SignedString(mySigningKey)
-//
-//	// Отдаем токен клиенту
-//	w.Write([]byte(tokenString))
-//
-//	}
-//}
+var jwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
+	ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+		return mySigningKey, nil
+	},
+	SigningMethod: jwt.SigningMethodHS256,
+})
+
+func GetToken(w http.ResponseWriter, r *http.Request) {
+
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var currUser User
+	json.Unmarshal(reqBody, &currUser)
+
+	if currUser.password == UsersArr[currUser.username].password {
+
+		token := jwt.New(jwt.SigningMethodHS256)
+
+		// Устанавливаем набор параметров для токена
+		claims := make(jwt.MapClaims)
+		claims["admin"] = true
+		claims["name"] = "specialist"
+		claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+		token.Claims = claims
+
+		// Подписываем токен нашим секретным ключем
+		tokenString, _ := token.SignedString(mySigningKey)
+
+		// Отдаем токен клиенту
+		w.Write([]byte(tokenString))
+
+	}
+}
