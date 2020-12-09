@@ -12,7 +12,6 @@ import (
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
 )
 
 var mySigningKey = []byte("supersecret")

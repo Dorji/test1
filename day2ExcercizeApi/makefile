@@ -7,9 +7,6 @@ build:
 .PHONY: exec
 exec:
 	./main
-.PHONY: mytest
-mytest:
-	go test -v
 .PHONY: docker_build
 docker_build:
 	sudo docker build -t rest-api-app .
