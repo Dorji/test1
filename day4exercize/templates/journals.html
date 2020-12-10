@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All journals list page</title>
+</head>
+<body>
+<form method="post" action="/logout">
+    <button type="submit">Logout</button>
+</form>
+<form method="get" action="/journals/create">
+    <button type="submit">All journals</button>
+</form>
+<h2>Journals list:</h2>
+<ul>
+    {{range .Journals}} <!--Вызываем поле Books переданного объекта-->
+    <li>
+        <b>{{.Redactor}}</b>
+        <p>{{.SerialNumber}}</p>
+        <p>{{.Edition}}</p>
+        <p>{{.PageCount}}</p>
+    </li>
+    {{end}}
+</ul>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All book list page</title>
+</head>
+<body>
+<form method="post" action="/logout">
+    <button type="submit">Logout</button>
+</form>
+<form method="get" action="/books/create">
+    <button type="submit">Create Book</button>
+</form>
+<h2>Book list:</h2>
+<ul>
+    {{range .Books}} <!--Вызываем поле Books переданного объекта-->
+    <li>
+        <b>{{.Title}}</b>
+        <p>{{.PageCount}}</p>
+        <p>{{.Author}}</p>
+        <p><hl></hl></p>
+    </li>
+    {{end}}
+</ul>
+</body>
+</html>

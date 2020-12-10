@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Home page</title>
+    </head>
+    <body>
+        <h2>Welcome {{ .UserName}}!</h2>
+
+        <form method="post" action="/journals/create">
+            <label for="edition">Edition</label>
+            <input type="text" id="edition" name="edition">
+            <label for="pagecount">Page Count</label>
+            <input type="number" id="pagecount" name="pagecount">
+            <label for="serialnumber">SerialNumber</label>
+            <input type="number" id="serialnumber" name="serialnumber">
+            <label for="redactor">Redactor</label>
+            <input type="redactor" id="redactor" name="redactor">
+
+            <button type="submit">Create</button>
+        </form>
+    </body>
+</html>
