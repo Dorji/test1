@@ -7,15 +7,12 @@ build:
 .PHONY: exec
 exec:
 	./main
-.PHONY: mytest
-mytest:
-	go test -v
 .PHONY: docker_build
 docker_build:
 	sudo docker build -t books-n-journals .
 .PHONY: docker_run
 docker_run:
-	sudo docker run -p 8080:8081 -it books-n-journals
+	sudo docker run -p 8081:8080 -it books-n-journals
 .PHONY: images
 images:
 	sudo docker images

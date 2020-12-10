@@ -51,7 +51,7 @@ func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		Phone:    "+49 999 999 22 33",
 		Link:     "github.com/new_user/portfolio",
 	}
-	parserdTemplate, _ := template.ParseFiles("templates/home.html")
+	parserdTemplate, _ := template.ParseFiles("templates/createbook.html")
 	err := parserdTemplate.Execute(w, user)
 	if err != nil {
 		log.Println("error while parsing template with user:", err)

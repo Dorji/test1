@@ -19,7 +19,7 @@ type User struct {
 func homePageHandler(w http.ResponseWriter, r *http.Request) {
 	user := User{Age: 35,
 		Name: "Bob"}
-	parsedTemplate, _ := template.ParseFiles("templates/home.html")
+	parsedTemplate, _ := template.ParseFiles("templates/createbook.html")
 	err := parsedTemplate.Execute(w, user)
 	if err != nil {
 		log.Printf("template exec error")
