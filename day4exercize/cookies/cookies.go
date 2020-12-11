@@ -10,6 +10,7 @@ type Book struct {
 	PageCount int
 	Author    string
 	Rating    int
+	Owner     string
 }
 type User struct {
 	UserName string
@@ -25,18 +26,21 @@ var BookCollection = Books{
 			Title:     "Harry Potter",
 			Author:    "J.K. Rowling",
 			PageCount: 300,
+			Owner:     "admin",
 			Rating:    500,
 		},
 		{
 			Title:     "Lord of the Rings",
 			Author:    "Tolkien",
 			PageCount: 100500,
+			Owner:     "admin",
 			Rating:    100500,
 		},
 		{
 			Title:     "The secret of the secrets",
 			Author:    "Random",
 			PageCount: 100,
+			Owner:     "admin",
 			Rating:    100,
 		},
 	},

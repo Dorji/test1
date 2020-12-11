@@ -109,6 +109,7 @@ var CreateBooksHandler = http.HandlerFunc(
 					Author:    author,
 					PageCount: pc,
 					Rating:    rt,
+					Owner:     UserName,
 				})
 				http.Redirect(w, r, "/books", 302)
 			} else {
