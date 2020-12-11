@@ -9,6 +9,7 @@ type Book struct {
 	Title     string
 	PageCount int
 	Author    string
+	Rating    int
 }
 type User struct {
 	UserName string
@@ -21,9 +22,22 @@ type Books struct {
 var BookCollection = Books{
 	Books: []Book{
 		{
+			Title:     "Harry Potter",
+			Author:    "J.K. Rowling",
+			PageCount: 300,
+			Rating:    500,
+		},
+		{
 			Title:     "Lord of the Rings",
 			Author:    "Tolkien",
 			PageCount: 100500,
+			Rating:    100500,
+		},
+		{
+			Title:     "The secret of the secrets",
+			Author:    "Random",
+			PageCount: 100,
+			Rating:    100,
 		},
 	},
 }
@@ -43,8 +57,20 @@ var JournalCollection = Journals{
 		{
 			Edition:      "15",
 			SerialNumber: 112233,
-			PageCount:    222,
+			PageCount:    3333333,
 			Redactor:     "Isinov",
+		},
+		{
+			Edition:      "22",
+			SerialNumber: 112233,
+			PageCount:    224322,
+			Redactor:     "MArvel",
+		},
+		{
+			Edition:      "11",
+			SerialNumber: 112233,
+			PageCount:    44444444,
+			Redactor:     "DC",
 		},
 	},
 }

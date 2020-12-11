@@ -6,6 +6,9 @@
     <body>
         <h2>Welcome {{ .UserName}}!</h2>
 
+        <form method="get" action="/">
+            <button type="submit">main</button>
+        </form>
         <form method="post" action="/journals/create">
             <label for="edition">Edition</label>
             <input type="text" id="edition" name="edition">

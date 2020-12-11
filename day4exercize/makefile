@@ -12,7 +12,7 @@ docker_build:
 	sudo docker build -t books-n-journals .
 .PHONY: docker_run
 docker_run:
-	sudo docker run -p 8081:8080 -it books-n-journals
+	sudo docker run -p 8080:8080 -it books-n-journals
 .PHONY: images
 images:
 	sudo docker images
